@@ -1,0 +1,4 @@
+preload = ["./src/glslPlugin.ts"]
+
+[serve.static]
+plugins = ["./src/glslPlugin.ts"]
