@@ -18,8 +18,12 @@ export class Canvas {
     protected canvas: HTMLCanvasElement;
     protected gl: WebGL2RenderingContext | WebGLRenderingContext;
     protected pixelRatio!: number;
-    protected width!: number;
-    protected height!: number;
+    protected _width!: number;
+    protected _height!: number;
+    private animationFrameRequested: boolean = false;
+
+    get width() { return this._width; }
+    get height() { return this._height; }
 
     constructor(options?: CanvasOptions);
     constructor(canvas: HTMLCanvasElement, options?: CanvasOptions);
@@ -94,39 +98,53 @@ export class Canvas {
             this.canvas.style.width = width + 'px';
             this.canvas.style.height = height + 'px';
         }
-        this.canvas.width = this.width = width * this.pixelRatio;
-        this.canvas.height = this.height = height * this.pixelRatio;
-        this.gl.viewport(0, 0, this.width, this.height);
+        this.canvas.width = this._width = width * this.pixelRatio;
+        this.canvas.height = this._height = height * this.pixelRatio;
+        this.gl.viewport(0, 0, this._width, this._height);
     }
 
-    createProgram({vertex, fragment}: {vertex: string, fragment: string}): Program {
+    public createProgram({vertex, fragment}: {vertex: string, fragment: string}): Program {
         const vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, vertex);
         const fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, fragment);
         const program = linkProgram(this.gl, [vertexShader, fragmentShader]);
-        return new Program(program);
+        return new Program(this.gl, program);
     }
 
-    createBuffer(data: number[]): WebGLBuffer {
+    public createBuffer(data: number[]): WebGLBuffer {
         const buffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(data), this.gl.STATIC_DRAW);
         return buffer;
     }
 
-    render() {
+    protected render() {
         if(this.parent.clientWidth !== this.canvas.width || this.parent.clientHeight !== this.canvas.height) {
             this.updateSize(this.parent.clientWidth, this.parent.clientHeight);
         }
 
-        //this.gl.clearColor(0, 0, 0, 1);
-        //this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.clearColor(0, 0, 0, 0);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     }
 
-    run() {
-        // TODO: render now, or use requestAnimationFrame
+    public async run(): Promise<void> {
+        this.requestAnimationFrame();
+    }
+
+    private animationFrame() {
         this.render();
 
-        
+        this.requestAnimationFrame();
+    }
+
+    protected requestAnimationFrame() {
+        if(!this.animationFrameRequested) {
+            this.animationFrameRequested = true;
+            requestAnimationFrame(() => {
+                this.animationFrameRequested = false;
+
+                this.animationFrame();
+            });
+        }
     }
 
     /*async loadProgram(): Promise<Program> {

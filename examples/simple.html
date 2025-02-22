@@ -1,11 +1,18 @@
 <!doctype html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <!--<link rel="stylesheet" href="./styles.css" />-->
     <style>
+      body {
+        background: #000;
+      }
       canvas {
         opacity: 1;
         transition: opacity 0.25s ease-in-out;
+        width: 512px;
+        height: 512px;
       }
       canvas.canvas-loading {
         opacity: 0;
@@ -14,10 +21,6 @@
   </head>
   <body>
     <canvas id="canvas"></canvas>
-    <div id="pouet" style="display: flex; width: 50vh; height: 50vh; background: #ccc;">pouet</div>
-    <div style="display: flex; width: 50vh; height: 50vh; background: #f88;">pouet</div>
-    <div style="display: flex; width: 50vh; height: 50vh; background: #8f8;">pouet</div>
-    <div style="display: flex; width: 50vh; height: 50vh; background: #88f;">pouet</div>
     <script src="./simple.ts" type="module"></script>
   </body>
 </html>

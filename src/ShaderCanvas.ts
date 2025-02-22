@@ -9,8 +9,11 @@ export interface ShaderCanvasOptions extends CanvasOptions {
 }
 
 export class ShaderCanvas extends Canvas {
-    program: Program;
-    buffer: WebGLBuffer;
+    public program: Program;
+    private buffer: WebGLBuffer;
+    private timeLast: number;
+    public time: number = 0;
+    private onRenderCallback?: (shaderCanvas: ShaderCanvas) => void;
 
     constructor(options?: ShaderCanvasOptions);
     constructor(canvas: HTMLCanvasElement, options?: ShaderCanvasOptions);
@@ -19,10 +22,16 @@ export class ShaderCanvas extends Canvas {
     constructor(element?: HTMLCanvasElement | HTMLElement | string | ShaderCanvasOptions, options?: ShaderCanvasOptions) {
         super(element, options);
 
+        if(!options) {
+            options = element as ShaderCanvasOptions;
+        }
+
         this.program = this.createProgram({
             vertex: options?.vertex || vertexDefault,
             fragment: options?.fragment || fragmentDefault
         });
+        this.gl.useProgram(this.program.program);
+
         this.buffer = this.createBuffer([1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0]);
 
         const positionLoc = this.gl.getAttribLocation(this.program.program, "a_position");
@@ -31,7 +40,7 @@ export class ShaderCanvas extends Canvas {
         this.gl.enableVertexAttribArray(positionLoc);
 
         this.init();
-        this.run();
+        this.render();
 
         /*
         this.gl.finish();
@@ -46,14 +55,27 @@ export class ShaderCanvas extends Canvas {
     }
 
     async init() {
+        this.timeLast = performance.now();
         //await super.init();
         //await this.fence();
     }
 
     render() {
+        const now = performance.now();
+        this.time += (now - this.timeLast) * 0.001;
+        this.timeLast = now;
+
         super.render();
 
-        this.gl.useProgram(this.program.program);
+        if(this.onRenderCallback) {
+            this.onRenderCallback(this);
+        }
+
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4); 
+    }
+
+    onRender(f: (shaderCanvas: ShaderCanvas) => void): ShaderCanvas {
+        this.onRenderCallback = f;
+        return this;
     }
 }

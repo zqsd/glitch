@@ -7,11 +7,11 @@ function getTextShaderType(type: number): string {
 }
 
 function shaderLines(source: string): string[] {
-    const lines = source.split(/[\r\n]/);
+    const lines = source.split(/\r?\n|\r|\n/g);
     const res: string[] = [];
 
     for(let i = 0, l = 1; i < lines.length; i++ , l++) {
-        const lineNumber = l.toString();
+        const lineNumber = l.toString().padStart(lines.length / 10 + 1, ' ');
         res.push(`${lineNumber} ${lines[i]}`);
     }
 
@@ -21,11 +21,15 @@ function shaderLines(source: string): string[] {
 function logShaderErrors(source: string, type: number, info: string) {
     const lines = shaderLines(source);
 
-    for(const error of info.trim().split(/[\r\n]/)) {
+    for(const error of info.trim().split(/(\r\n|\n)/)) {
         const match = error.match(/^ERROR: 0:(\d+): (.*)/);
         if(match) {
-            const lineNumber = match[1] as number;
-            const context = lines.slice(lineNumber - 2, lineNumber + 1).join('\n');
+            const lineNumber = parseInt(match[1]);
+            const context = [
+                lines[lineNumber - 2],
+                '>' + lines[lineNumber - 1].substring(1),
+                lines[lineNumber],
+            ].join('\n');
             console.error(getTextShaderType(type).toUpperCase() + ' SHADER ' + error.replace('ERROR: 0:', 'ERROR: L') + '\r\n\r\n' + context);
         } else {
             console.warn(error);
@@ -73,7 +77,45 @@ export function linkProgram(gl: WebGLRenderingContext, shaders: WebGLShader[]): 
 }
 
 export class Program {
-    constructor(public program: WebGLProgram) {
+    constructor(private gl: WebGLRenderingContext, public program: WebGLProgram) {
 
+    }
+
+    private getUniformLocation(name: string): WebGLUniformLocation {
+        const loc = this.gl.getUniformLocation(this.program, name);
+        if(!loc) throw new Error(`Can't find uniform : ${name}`);
+        return loc;
+    }
+
+    setUniformFloat(name: string, x: GLfloat | Float32Array, y?: GLfloat, z?: GLfloat, w?: GLfloat) {
+        if(x instanceof Float32Array) {
+            this.gl.uniform1fv(this.getUniformLocation(name), x);
+        } else if(y === undefined) {
+            this.gl.uniform1f(this.getUniformLocation(name), x);
+        } else if(z === undefined) {
+            this.gl.uniform2f(this.getUniformLocation(name), x, y);
+        } else if(w === undefined) {
+            this.gl.uniform3f(this.getUniformLocation(name), x, y, z);
+        } else {
+            this.gl.uniform4f(this.getUniformLocation(name), x, y, z, w);
+        }
+    }
+
+    setUniformInt(name: string, value: GLint | Int32Array) {
+        if(value instanceof Int32Array) {
+            this.gl.uniform1iv(this.getUniformLocation(name), value);
+        } else {
+            this.gl.uniform1i(this.getUniformLocation(name), value);
+        }
+    }
+
+    setUniformMat(name: string, value: [GLfloat, GLfloat, GLfloat, GLfloat] | [GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat] | [GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat, GLfloat]) {
+        if(value.length === 4) {
+            this.gl.uniformMatrix2fv(this.getUniformLocation(name), false, value);
+        } else if(value.length === 9) {
+            this.gl.uniformMatrix3fv(this.getUniformLocation(name), false, value);
+        } else if(value.length === 12) {
+            this.gl.uniformMatrix4fv(this.getUniformLocation(name), false, value);
+        }
     }
 }
