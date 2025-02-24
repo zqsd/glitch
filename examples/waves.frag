@@ -14,11 +14,11 @@ vec4 color_c = vec4(0.5, 0.0, 0.75, 1.0);
 varying vec2 uv;
 
 vec4 srgbToLinear(vec4 srgb) {
-    return vec4(mix(srgb.rgb / 12.92, pow((srgb.rgb + 0.055) / 1.055, vec3(2.4)), step(0.04045, srgb.rgb)), 1.0);
+    return vec4(mix(srgb.rgb / 12.92, pow((srgb.rgb + 0.055) / 1.055, vec3(2.4)), step(0.04045, srgb.rgb)), srgb.a);
 }
 
 vec4 linearToSrgb(vec4 linear) {
-    return vec4(mix(linear.rgb * 12.92, 1.055 * pow(linear.rgb, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, linear.rgb)), 1.0);
+    return vec4(mix(linear.rgb * 12.92, 1.055 * pow(linear.rgb, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, linear.rgb)), linear.a);
 }
 
 vec3 hash(vec3 p) {
