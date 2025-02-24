@@ -8,11 +8,11 @@
       body {
         background: #000;
       }
-      canvas {
+      canvas#canvas {
         opacity: 1;
         transition: opacity 0.25s ease-in-out;
-        width: 512px;
-        height: 512px;
+        width: 100vh;
+        height: 100vh;
       }
       canvas.canvas-loading {
         opacity: 0;
@@ -20,6 +20,29 @@
     </style>
   </head>
   <body>
+    <div style="display: block; width: 256px; height: 256px; background-color: #f80; margin: 1em;">
+      pouet<br>
+      pouet<br>
+      pouet<br>
+      pouet<br>
+      pouet<br>
+      pouet<br>
+      pouet<br>
+      pouet<br>
+    </div>
+    <div id="container" style="background-color: #333; display: inline-block;">
+      <div id="block" style="display: block; width: 75vh; height: 75vh; background-color: #f80; margin: 1em;">
+        pouet<br>
+        pouet<br>
+        pouet<br>
+        pouet<br>
+        pouet<br>
+        pouet<br>
+        pouet<br>
+        pouet<br>
+      </div>
+    </div>
+    <br>
     <canvas id="canvas"></canvas>
     <script src="./simple.ts" type="module"></script>
   </body>
