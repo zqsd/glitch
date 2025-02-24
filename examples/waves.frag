@@ -45,8 +45,8 @@ float noise(vec3 p) {
                mix(mix(n001, n101, u.x), mix(n011, n111, u.x), u.y), u.z);
 }
 
-float fbm2(int id) {
-    vec3 inn = vec3(uv.x * width + u_time * scroll, u_time * speed, float(id) * 5.0);
+float fbm2(float id) {
+    vec3 inn = vec3(uv.x * width + u_time * scroll, u_time * speed, id);
     // maybe + sin ?
     //float n = cos(uv.x * width + u_time * scroll + float(id) * 3.14159 / 3.0) * 0.75;
     float n = 1.0 * noise(1.0 * inn + vec3(0.0, 0.0, 0.0)) + //1.0 * sin(uv.x * width + u_time * scroll + float(id) * 3.14159 / 3.0) * 0.75;/* +
@@ -57,7 +57,7 @@ float fbm2(int id) {
 
 vec4 blend(vec4 a, vec4 b) {
     if(a.a > 0.0 && b.a > 0.0) {
-        float alpha = max(a.a, b.a);
+        float alpha = mix(a.a, b.a, 0.5);
         vec3 rgb = a.rgb * (a.a / (a.a + b.a)) + 
                    b.rgb * (b.a / (a.a + b.a));
         return vec4(rgb, alpha);
@@ -78,27 +78,27 @@ float edge(vec2 uv, float y0, float y1) {
         float aa = linearstep(y1 + (y0 > y1 ? -dd : dd), y1, uv.y);
         return aa;
     } else { // fill
-        return m;
+        return pow(m, 4.0);
     }
 }
 
 vec4 wave(vec4 color, int id) {
-    float n_a = fbm2(id * 6 + 0);
-    float n_b = fbm2(id * 6 + 2);
-    float n_c = fbm2(id * 6 + 4);
+    float n_a = fbm2(float(id) * 6.0 + 0.0);
+    float n_b = fbm2(float(id) * 6.0 + 0.5);
+    float n_c = fbm2(float(id) * 6.0 + 1.0);
 
     return blend(
         color * edge(uv, n_b, n_a),
-        vec4(0.0) //color * edge(uv, n_b, n_c)
+        color * edge(uv, n_b, n_c)
     );
 }
 
 void main() {
     vec4 c;
     c = wave(srgbToLinear(color_b), 1);
-    for(int i = 0; i < 10; i++) {
-        c = blend(c, c);
-    }
+    //for(int i = 0; i < 10; i++) {
+    //    c = blend(c, c);
+    //}
     c = blend(c, wave(srgbToLinear(color_c), 2));
     c = blend(c, wave(srgbToLinear(color_a), 3));
     gl_FragColor = linearToSrgb(c);
