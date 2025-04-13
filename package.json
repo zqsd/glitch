@@ -1,7 +1,18 @@
 {
   "name": "glitch",
+  "version": "1.0.0",
+  "description": "A WebGL-based rendering library for creative coding.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zqsd/glitch.git"
+  },
+  "keywords": ["webgl", "glsl", "shader"],
+  "author": "Clem <clem@arbre.chat>",
+  "license": "MIT",
   "module": "src/main.ts",
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -9,7 +20,10 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "build": "bun build --env-file prod.env ./examples/simple.html --minify --outdir=dist",
+    "build": "bun build --env-file prod.env ./src/main.ts --minify --outdir=dist",
     "watch": "bun --env-file dev.env ./server.ts"
-  }
+  },
+  "files": [
+    "dist/**/*"
+  ]
 }
