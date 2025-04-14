@@ -11,8 +11,8 @@
   "license": "MIT",
   "module": "src/main.ts",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "devDependencies": {
     "@types/bun": "latest"
   },

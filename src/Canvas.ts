@@ -2,8 +2,6 @@ import { BaseCanvas } from "./BaseCanvas";
 import type { Renderer } from "./Renderer";
 
 export class Canvas extends BaseCanvas {
-    protected renderer?: Renderer;
-
     constructor(selector: string);
     constructor(canvas: HTMLCanvasElement);
     constructor(canvas: HTMLCanvasElement | string) {

@@ -1,5 +1,5 @@
 import type { BaseCanvas } from './BaseCanvas';
-import { Program, ShaderType } from './Program';
+import { Program } from './Program';
 
 function loadImage(src: string): Promise<HTMLImageElement> {
     return new Promise((resolve, reject) => {

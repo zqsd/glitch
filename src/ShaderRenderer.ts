@@ -1,10 +1,10 @@
-import { Renderer, type CanvasOptions } from './Renderer';
+import { Renderer, type RendererOptions } from './Renderer';
 import { Program } from './Program';
 import vertexDefault from './default.vert';
 import fragmentDefault from './default.frag';
 import type { BaseCanvas } from './BaseCanvas';
 
-export interface ShaderRendererOptions extends CanvasOptions {
+export interface ShaderRendererOptions extends RendererOptions {
     vertex?: string;
     fragment?: string;
 }
@@ -12,7 +12,7 @@ export interface ShaderRendererOptions extends CanvasOptions {
 export class ShaderRenderer extends Renderer {
     public program: Program;
     private buffer: WebGLBuffer;
-    private timeLast: number;
+    private timeLast: number = NaN;
     public time: number = 0;
 
     constructor(canvas: BaseCanvas, options?: ShaderRendererOptions) {
@@ -22,6 +22,7 @@ export class ShaderRenderer extends Renderer {
             vertex: options?.vertex || vertexDefault,
             fragment: options?.fragment || fragmentDefault
         });
+        this.buffer = this.createBuffer([1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0]);
         /*
         this.gl.finish();
         const pixels = new Uint8Array(4);
@@ -36,8 +37,6 @@ export class ShaderRenderer extends Renderer {
         this.program.build();
 
         this.gl.useProgram(this.program.id);
-
-        this.buffer = this.createBuffer([1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0]);
 
         const positionLoc = this.gl.getAttribLocation(this.program.id, "a_position");
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
