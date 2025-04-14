@@ -1,5 +1,5 @@
 {
-  "name": "glitch",
+  "name": "@arbreachat/glitch",
   "version": "1.0.0",
   "description": "A WebGL-based rendering library for creative coding.",
   "repository": {
